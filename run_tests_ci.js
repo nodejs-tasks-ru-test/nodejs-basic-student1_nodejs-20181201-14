@@ -1,4 +1,6 @@
 const request = require('request-promise').defaults({
+  simple: false,
+  resolveWithFullResponse: true,
   json: true
 });
 const run_tests = require('./run_tests');
@@ -19,15 +21,20 @@ async function retrievePRInfo() {
   const repo_slug = process.env.TRAVIS_REPO_SLUG;
   const number = process.env.TRAVIS_PULL_REQUEST;
   
-  const pr = await request({
+  const response = await request({
     uri: `${GITHUB_BASE}/repos/${repo_slug}/pulls/${number}`,
     headers: GITHUB_HEADERS,
     method: 'GET'
   });
   
-  const moduleName = pr.title.match(/\d+-module/i) || [];
-  const taskName = pr.title.match(/\d+-task/i) || [];
+  if (response.statusCode === 403) {
+    await sleep(300);
+    return retrievePRInfo();
+  }
   
+  const moduleName = response.body.title.match(/\d+-module/i) || [];
+  const taskName = response.body.title.match(/\d+-task/i) || [];
+
   return [moduleName[0], taskName[0]];
 }
 
@@ -36,6 +43,6 @@ retrievePRInfo()
     run_tests(moduleName, taskName, { reporter: 'json', useColors: false, });
   })
   .catch(err => {
-    console.log(err.message, err.status);
-    throw err;
+    console.error(err.message);
+    process.exit(1);
   });
