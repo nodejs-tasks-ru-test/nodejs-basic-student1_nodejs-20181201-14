@@ -1,0 +1,9 @@
+language: node_js
+node_js:
+  - 10.13.0
+
+script: node run_tests_ci
+
+notifications:
+  webhooks:
+  - https://d3c9b901.ngrok.io/taskbook/travis/notifications
