@@ -34,4 +34,8 @@ async function retrievePRInfo() {
 retrievePRInfo()
   .then(([moduleName, taskName]) => {
     run_tests(moduleName, taskName, { reporter: 'json', useColors: false, });
+  })
+  .catch(err => {
+    console.log(err.message, err.status);
+    throw err;
   });
