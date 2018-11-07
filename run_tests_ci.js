@@ -16,6 +16,9 @@ if (!process.env.CI)
 
 if (process.env.TRAVIS_EVENT_TYPE !== 'pull_request') return;
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 async function retrievePRInfo() {
   const repo_slug = process.env.TRAVIS_REPO_SLUG;
